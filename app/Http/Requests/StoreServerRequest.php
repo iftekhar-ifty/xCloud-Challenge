@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreServerRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreServerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,17 @@ class StoreServerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required',
+                Rule::unique('servers')->where(function ($query) {
+                    $query->where('provider', $this->provider);
+                })
+            ],
+            'provider' => 'required',
+            'status' => 'required',
+            'cpu_cores' => 'required',
+            'ram_mb' => 'required',
+            'storage_gb' => 'required',
+            'ip_address' => 'required',
         ];
     }
 }

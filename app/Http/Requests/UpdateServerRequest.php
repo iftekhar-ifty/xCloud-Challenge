@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateServerRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateServerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,25 @@ class UpdateServerRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $serverId = $this->route('id');
+
+
         return [
-            //
+            'name' => [
+                'sometimes',
+                'required',
+                'string',
+                Rule::unique('servers')
+                    ->where('provider', $this->provider)
+                    ->ignore($serverId),
+            ],
+            'provider'   => 'sometimes|required',
+            'status'     => 'sometimes|required',
+            'cpu_cores'  => 'sometimes|required',
+            'ram_mb'     => 'sometimes|required',
+            'storage_gb' => 'sometimes|required',
+            'ip_address' => 'sometimes|required',
         ];
     }
 }
