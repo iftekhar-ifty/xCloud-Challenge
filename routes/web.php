@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    return view('welcome');
+    return inertia('Home');
 });
+
+
 Route::get('/dd', [\App\Http\Controllers\Apis\ServerController::class, 'index']);
