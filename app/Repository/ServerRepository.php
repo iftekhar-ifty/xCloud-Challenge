@@ -14,7 +14,7 @@ class ServerRepository implements RepositoryInterface
         return $this->buildQuery()->all();
     }
 
-    public function paginate($perPage, string $filterField = null, string $filterValue = null, string $sortField = null, string $sortDirection = null, string $searchValue = null)
+    public function paginate($perPage, $filterField = [], $filterValue = [],  $sortField = null,  $sortDirection = null,  $searchValue = null)
     {
         return $this->buildQuery(
             filterField:$filterField,
@@ -50,10 +50,10 @@ class ServerRepository implements RepositoryInterface
 
     }
 
-    public function buildQuery(string $filterField = null, string $filterValue = null, string $sortField = null, string $sortDirection = null, string $searchValue = null): Builder
+    public function buildQuery(array $filterField = null, array $filterValue = null, string $sortField = null, string $sortDirection = null, string $searchValue = null): Builder
     {
         $query = Server::query();
-        if($searchValue){
+        if($searchValue != null) {
             $query->where('name', 'like', '%' . $searchValue . '%')
                 ->orWhere('ip_address', 'like', '%' . $searchValue . '%')
                 ->orWhere('provider', 'like', '%' . $searchValue . '%')
@@ -64,7 +64,11 @@ class ServerRepository implements RepositoryInterface
         }
 
         if($filterField && $filterValue){
-            $query->where($filterField, $filterValue);
+            foreach ($filterField as $key => $value) {
+                $query->where($value, '=', $filterValue[$key]);
+            }
+
+//            $query->where($filterField, $filterValue);
         }
         if($sortField && $sortDirection){
             $query->orderBy($sortField, $sortDirection);

@@ -26,12 +26,14 @@ class ServerController extends Controller
     public function index(Request $request)
     {
 
+//        dd($request->filter_field, $request->query('filter_value'));
         $perPage = intval($request->query('perPage'));
         $searchValue = (string) $request->query('search_value');
-        $filterField = (string) $request->query('filter_field');
-        $filterValue = (string) $request->query('filter_value');
+        $filterField =  $request->query('filter_field') ?? null;
+        $filterValue =  $request->query('filter_value') ?? null;
         $sortField = (string) $request->query('sort_field');
         $sortDirection = (string) $request->query('sort_direction');
+
 
         try {
             $response = $this->service->paginate(

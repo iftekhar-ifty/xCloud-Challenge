@@ -1,11 +1,16 @@
 <?php
 
+use App\Http\Controllers\Admin\ServerController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', [ServerController::class, 'index']);
 
-    return inertia('Home');
+
+Route::prefix('server')->group(function () {
+    Route::get('show/{id}', [ServerController::class, 'show']);
+    Route::post('store', [ServerController::class, 'store']);
+    Route::put('update/{id}', [ServerController::class, 'update']);
+    Route::delete('delete/{id}', [ServerController::class, 'destroy']);
 });
 
-
-Route::get('/dd', [\App\Http\Controllers\Apis\ServerController::class, 'index']);

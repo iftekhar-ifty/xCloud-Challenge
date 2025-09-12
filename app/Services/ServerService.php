@@ -19,7 +19,7 @@ class ServerService
         return $this->repository->all();
     }
 
-    public function paginate($perPage = 10, string $filterField = null, string $filterValue = null, string $sortField = null, string $sortDirection = null, string $searchValue = null)
+    public function paginate($perPage = 10,  $filterField = [],  $filterValue = [], $sortField = null, $sortDirection = null, $searchValue = null)
     {
         return $this->repository->paginate(
             perPage: $perPage,

@@ -18,10 +18,12 @@ Route::prefix('v1')
     });
 
 Route::prefix('v1')
-    ->middleware('auth:sanctum')
+//    ->middleware('auth:sanctum')
     ->group(function () {
-        Route::controller(ServerController::class)->group(function () {
-            Route::get('/servers', 'index');
+        Route::controller(ServerController::class)
+            ->prefix('server')
+            ->group(function () {
+            Route::get('/', 'index');
             Route::post('/store', 'store');
             Route::get('/find/{id}', 'show');
             Route::put('/update/{id}', 'update');
