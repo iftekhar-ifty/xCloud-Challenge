@@ -63,12 +63,12 @@ class ServerRepository implements RepositoryInterface
                 ->orWhere('storage_gb', 'like', '%' . $searchValue . '%');
         }
 
-        if($filterField && $filterValue){
+        if($filterField != null){
             foreach ($filterField as $key => $value) {
-                $query->where($value, '=', $filterValue[$key]);
+                if($filterValue[$key] != null){
+                    $query->where($value, '=', $filterValue[$key]);
+                }
             }
-
-//            $query->where($filterField, $filterValue);
         }
         if($sortField && $sortDirection){
             $query->orderBy($sortField, $sortDirection);

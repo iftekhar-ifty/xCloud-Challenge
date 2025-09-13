@@ -1,16 +1,15 @@
 import Filter from "@/pages/Filter.jsx";
 import axios from "axios";
 import {useEffect, useState} from "react";
-import {useForm} from "@inertiajs/react";
+import {Link, useForm} from "@inertiajs/react";
 import Modal from "@/pages/Modal.jsx";
 import ShowModal from "@/pages/Server/ShowModal.jsx";
 import EditModal from "@/pages/Server/EditModal.jsx";
+import { router } from "@inertiajs/react"
 
 function Home({servers}) {
-    console.log(servers)
-    {/* const [servers, setServers] = useState([]);*/}
-    const [searchQuery, setsearchQuery] = useState("");
-    const [providerData, setProviderData] = useState("");
+
+    const [searchQuery, setSearchQuery] = useState("");
     const [perPage, setPerPage] = useState(10);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isShowModalOpen, setIsShowModalOpen] = useState(false);
@@ -18,18 +17,11 @@ function Home({servers}) {
     const [selectedID, setSelectedID] = useState(null);
 
     const [filters, setFilters] = useState({
-        provider: "",
-        ram_mb: "",
-        cpu_cores: "",
+        provider: null,
+        ram_mb: null,
+        cpu_cores: null,
     });
 
-
-    const handleFilterChange = (key, value) => {
-        setFilters((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
 
 
     function getProviderClass(provider) {
@@ -46,18 +38,7 @@ function Home({servers}) {
                 return "bg-gray-100 text-gray-800";
         }
     }
-    function resetAllFilter(){
 
-        setsearchQuery('');
-        setProviderData('');
-        setPerPage(10);
-        setFilters({
-            provider: "",
-            ram_mb: "",
-            cpu_cores: "",
-        });
-
-    }
 
 
     const {  delete:destroy, processing } = useForm({});
@@ -82,6 +63,9 @@ function Home({servers}) {
         cpu_cores:''
     })
 
+    // START CRUD //////////////////////////////////////////////////////////
+
+    // edit
     function openEditModel(server){
         setDataUpdate({
             name: server.name,
@@ -96,7 +80,7 @@ function Home({servers}) {
         setIsEditModalOpen(true);
     }
 
-
+    // update
     function handleUpdate(){
         put(`/server/update/${selectedID}`,{
             onSuccess: () => {
@@ -128,6 +112,24 @@ function Home({servers}) {
         });
         setIsShowModalOpen(true);
     }
+
+    // delete
+    function handleDeleteData(){
+        destroy(`server/delete/${selectedID}`);
+        setIsDeleteModalOpen(false)
+        setSelectedID(null)
+    }
+
+    function openDeleteModal(id){
+        setIsDeleteModalOpen(true)
+        setSelectedID(id)
+    }
+
+    // CRUD end /////////////////////////////////////////////////
+
+
+
+    // START COMMON FUNCTION///////////////////////////////////////////////////
     function closeModal(modalType){
         if(modalType == 'show'){
             setIsShowModalOpen(false);
@@ -146,22 +148,59 @@ function Home({servers}) {
 
     }
 
-    // delete
-    function handleDeleteData(){
-        destroy(`server/delete/${selectedID}`);
-        setIsDeleteModalOpen(false)
-        setSelectedID(null)
+    const updateQuery = (params = {}) => {
+
+        const query = {
+            search_value: params.search_value ?? searchQuery,
+            perPage: params.perPage ?? perPage,
+            filter_field: params.filter_field ?? Object.keys(filters),
+            filter_value: params.filter_value ?? Object.values(filters),
+            page: params.page ?? 1,
+        }
+        console.log(query)
+        router.get("/", query, {
+            preserveState: true,
+            replace: true,
+        })
     }
 
-    function openDeleteModal(id){
-        setIsDeleteModalOpen(true)
-        setSelectedID(id)
+
+    // END COMMON FUNCTION///////////////////////////////////////////////////
+
+    // START SEARCH & FILTER///////////////////////////////////////////////////
+
+    const handleSearch = (value) => {
+        setSearchQuery(value)
+        updateQuery({ search_value: value,page: 1})
+
     }
+    //  handle dropdown filters
+    const handleFilterChange = (field, value) => {
+        const newFilters = { ...filters, [field]: value }
+        setFilters(newFilters)
+        updateQuery({
+            filter_field: Object.keys(newFilters),
+            filter_value: Object.values(newFilters),
+            page: 1
+        })
+    }
+
+    function handlePerPage(value){
+        updateQuery({ perPage: value, page: 1 })
+    }
+
+    // END SEARCH & FILTER ///////////////////////////////////////////////////////////////
+
+
     return (
         <>
             <div className="max-w-7xl mx-auto">
-
-                <Filter resetAllFilter={resetAllFilter} setsearchQuery={setsearchQuery} setProviderData={setProviderData} handleFilterChange={handleFilterChange}></Filter>
+                {searchQuery}
+                <Filter
+                    setSearchQuery={handleSearch}
+                    handleFilterChange={handleFilterChange}
+                    setPerPage={handlePerPage}
+                ></Filter>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -210,7 +249,7 @@ function Home({servers}) {
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <button  className="flex items-center space-x-1 hover:text-gray-700">
-                                        <span>CPU Core</span>
+                                        <span>CPU Cores</span>
                                         <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m5 15 7-7 7 7"></path>
                                         </svg>
@@ -227,16 +266,15 @@ function Home({servers}) {
                                 <tr key={server.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{server.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{server.ip_address}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getProviderClass(server.provider)}`}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getProviderClass(server.provider)}`}>
                                         {server.provider}
-                                    </span>
-
+                                                 </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ server.ram_mb }</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ server.storage_gb }</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ server.cpu_cores }</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ server.ram_mb }</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ server.storage_gb }</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ server.cpu_cores }</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         <div className="flex space-x-2">
                                             <button type="button" onClick={() => openEditModel(server)} className="p-2  rounded-lg text-indigo-600 transition-colors">
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,9 +298,40 @@ function Home({servers}) {
 
                                 </tr>
                             ))}
+                            <tr>
+                                <td colSpan="7" className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <div className="flex gap-2 mt-4">
+                                        {servers.links.map((link, index) => (
+                                            <Link
+                                                key={index}
+                                                onClick={() => {
+                                                    if (link.url) {
+                                                        const url = new URL(link.url)
+                                                        const page = url.searchParams.get("page")
+                                                        // preserve current perPage
+
+                                                        updateQuery({
+                                                            page: page,
+                                                            search_value: searchQuery,
+                                                            filter_field: Object.keys(filters),
+                                                            filter_value: Object.values(filters),
+                                                            perPage: perPage  })
+                                                    }
+                                                }}
+                                                href={link.url || '#'}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                                className={`px-3 py-1 border rounded ${
+                                                    link.active ? 'bg-gray-600 text-white' : 'bg-white'
+                                                } ${!link.url ? 'opacity-50 pointer-events-none' : ''}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </td>
+                            </tr>
 
                             </tbody>
                         </table>
+
                     </div>
 
                 </div>

@@ -37,9 +37,9 @@ class UpdateServerRequest extends FormRequest
             ],
             'provider'   => 'sometimes|required',
             'status'     => 'sometimes|required',
-            'cpu_cores'  => 'sometimes|required',
-            'ram_mb'     => 'sometimes|required',
-            'storage_gb' => 'sometimes|required',
+            'cpu_cores'  => 'sometimes|required|integer',
+            'ram_mb'     => 'sometimes|required|integer',
+            'storage_gb' => 'sometimes|required|integer',
             'ip_address' => 'sometimes|required',
         ];
     }

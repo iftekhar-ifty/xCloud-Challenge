@@ -30,10 +30,10 @@ class StoreServerRequest extends FormRequest
             ],
             'provider' => 'required',
             'status' => 'required',
-            'cpu_cores' => 'required',
-            'ram_mb' => 'required',
-            'storage_gb' => 'required',
-            'ip_address' => 'required',
+            'cpu_cores' => 'required|integer|min:1|max:128',
+            'ram_mb' => 'required|integer|min:512|max:1048576',
+            'storage_gb' => 'required|integer|min:10|max:1048576',
+            'ip_address' => 'required|unique:servers',
         ];
     }
 }

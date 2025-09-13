@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import {useForm, usePage} from "@inertiajs/react";
+import {Link, useForm, usePage} from "@inertiajs/react";
 import Modal from "@/pages/Modal.jsx";
 
-function Filter({setsearchQuery, setProviderData,handleFilterChange,resetAllFilter}){
+function Filter({setSearchQuery,handleFilterChange,setPerPage}){
     const [isOpen, setIsOpen] = useState(false);
     const {data,setData,post,errors,processing} = useForm({
         name:'',
@@ -46,7 +46,7 @@ function Filter({setsearchQuery, setProviderData,handleFilterChange,resetAllFilt
                     <div className="flex-1 min-w-64">
                         <div className="relative">
                             <input
-                                onChange={(e) => setsearchQuery(e.target.value)}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 type="text"
                                 placeholder="Search servers..."
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -86,11 +86,18 @@ function Filter({setsearchQuery, setProviderData,handleFilterChange,resetAllFilt
                         <option value="2048">2048</option>
                         <option value="other">other</option>
                     </select>
-                    <button onClick={resetAllFilter} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    <select  onChange={(e) => setPerPage(e.target.value)} id="select2" className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Per Page</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                    <Link href="/" className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         <svg className="w-6 h-6 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
                         </svg>
-                    </button>
+                    </Link>
                     <button   onClick={() => setIsOpen(true)} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         Add New Server
                     </button>
@@ -103,7 +110,7 @@ function Filter({setsearchQuery, setProviderData,handleFilterChange,resetAllFilt
                             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                     <div className="sm:flex sm:items-start">
-                                        <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                        <div className="mt-3 text-center sm:mt-0  sm:text-left w-full">
                                             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4" >Server Create</h3>
                                             <div className="mt-2">
                                                 <div className="space-y-4">
